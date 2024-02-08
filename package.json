@@ -1,0 +1,19 @@
+{
+  "name": "my_projects",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Vesimeu/Web-Site-blog.git"
+  },
+  "author": "Petr",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Vesimeu/Web-Site-blog/issues"
+  },
+  "homepage": "https://github.com/Vesimeu/Web-Site-blog#readme"
+}
