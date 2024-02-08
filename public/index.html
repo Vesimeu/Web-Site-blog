@@ -4,26 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>News Site</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
         body { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
         #news-container { margin-bottom: 20px; }
         input, button { margin: 5px; }
     </style>
 </head>
-<body>
-    <div id="news-container">
-        <h1>News</h1>
+<body class="bg-gray-100 flex items-center justify-center h-screen">
+    <div class="text-center">
+        <h1 class="text-4xl font-bold mb-4">News</h1>
+        <div class="bg-white shadow-md rounded-lg p-6 mx-4">
+            <input type="text" id="news-input" class="border p-2 rounded w-full" placeholder="Enter news here...">
+            <button id="submit-news" class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full">Submit News</button>
+        </div>
     </div>
-    <input type="text" id="news-input" placeholder="Enter news here...">
-    <button id="submit-news">Submit News</button>
 
     <script>
         document.getElementById('submit-news').addEventListener('click', function() {
             var newsText = document.getElementById('news-input').value;
-            var newsContainer = document.getElementById('news-container');
+            var newsContainer = document.createElement('div');
+            newsContainer.className = 'bg-gray-50 mt-4 p-4 rounded shadow';
             var newsItem = document.createElement('p');
             newsItem.textContent = newsText;
             newsContainer.appendChild(newsItem);
+            document.body.appendChild(newsContainer);
         });
     </script>
 </body>
