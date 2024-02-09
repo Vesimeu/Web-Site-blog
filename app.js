@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const path = require('path');
 const bcrypt = require('bcrypt');
 const session = require('express-session');
 const User = require('./models/User'); // This should point to your User model file
@@ -40,6 +41,11 @@ app.post('/register', async (req, res) => {
   }
 });
 
+app.get('/register', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'register.html'));
+});
+
+
 // User login route
 app.post('/login', async (req, res) => {
   const user = await User.findOne({ nickname: req.body.nickname });
@@ -55,6 +61,16 @@ app.post('/login', async (req, res) => {
     res.redirect('/login'); // User not found, redirect back to login
   }
 });
+
+app.get('/admin/users', async (req, res) => {
+  try {
+    const users = await User.find({}, 'nickname'); // Retrieve all users with only the nickname field
+    res.json(users);
+  } catch (error) {
+    res.status(500).send('Server error');
+  }
+});
+
 
 // Static files
 app.use(express.static('public'));
