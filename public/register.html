@@ -7,43 +7,50 @@
 </head>
 <body>
     <h2>Register</h2>
-    <form id="register-form" action="/register" method="post">
-        <div>
-            <label for="nickname">Nickname:</label>
-            <input type="text" id="nickname" name="nickname" required>
-            <span id="nickname-exists-error" class="text-red-500"></span>
-          </div>
-        <div>
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
-        </div>
-        <button type="submit">Register</button>
-    </form>
+    <form id="register-form" action="/register" method="POST">
+      <div>
+          <label for="nickname">Nickname:</label>
+          <input type="text" id="nickname" name="nickname" autocomplete="username" required>
+      </div>
+      <div>
+          <label for="password">Password:</label>
+          <input type="password" id="password" name="password" autocomplete="new-password" required>
+      </div>
+      <button type="submit">Register</button>
+  </form>
+  <span id="register-success" class="text-green-500"></span>
+  <span id="nickname-exists-error" class="text-green-500"></span>
 </body>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const form = document.getElementById('register-form');
-      form.addEventListener('submit', function(event) {
-        event.preventDefault();
-        const formData = new FormData(form); // Use 'form' here instead of 'registerForm'
-        fetch('/register', {
-          method: 'POST',
-          body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-          if (data.userExists) {
-            document.getElementById('nickname-exists-error').textContent = 'Nickname already exists.';
-          } else {
-            window.location.href = '/login';
-          }
-        })
-        .catch(error => {
-          console.error('Error:', error);
-        });
-      });
-    });
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.getElementById('register-form');
+  console.log(form);
+  form.addEventListener('submit', function(event) {
+    event.preventDefault();
+    const formData = new FormData(form);
+    console.log(formData);
+    fetch('/register', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify(Object.fromEntries(formData))
+})
+    .then(response => response.json())
+    .then(data => {
+      if (data.userExists) {
+        document.getElementById('nickname-exists-error').textContent = 'Nickname already exists.';
+      } else {
+        // Display success message instead of redirecting
+        document.getElementById('register-success').textContent = 'User successfully registered!';
+        console.log(data);
+        // Clear the form fields
+        form.reset();
+      }
+    })
+  });
+});
   </script>
 </html>
 

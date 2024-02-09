@@ -7,8 +7,19 @@ const User = require('./models/User'); // This should point to your User model f
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+
+const bodyparser = require("body-parser");
+app.use(bodyparser.urlencoded({ extended: false }));
+app.use(bodyparser.json());
+
+
 // Session middleware configuration
 app.use(express.urlencoded({ extended: true })); // Place this before your routes.
+
+app.use((error, req, res, next) => {
+  console.error(error.stack);
+  res.status(500).send('Something broke!');
+});
 
 app.use(session({
   secret: '4ab7c52e560953394292e01432a1c76a4b1e97f4fddb7f75dddcd3760754807230d72c49116951277f2f6b0117ab87b9ec33b979bf8f4103512421793ac0cb8d',
@@ -28,23 +39,28 @@ db.once('open', function() {
 
 // User registration route
 app.post('/register', async (req, res) => {
+  console.log("Received registration data:", req.body);
+  if (!req.body.password) {
+    return res.status(400).json({ error: 'Password is required' });
+  }
   try {
     const existingUser = await User.findOne({ nickname: req.body.nickname });
+    console.log("Existing user check result:", existingUser);
     if (existingUser) {
       return res.json({ userExists: true });
     }
-    
     // If user does not exist, proceed with hashing the password
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     const user = new User({
       nickname: req.body.nickname,
       password: hashedPassword
     });
-    
     // Save the new user to the database
     await user.save();
-    res.redirect('/login'); // Redirect to login page after successful registration
-  } catch {
+    res.json({ registered: true });
+    // res.redirect('/login'); // Redirect to login page after successful registration
+  } catch (error) {
+    console.error("Error during registration:", error);
     res.status(500).json({ error: 'Error registering new user' });
   }
 });
