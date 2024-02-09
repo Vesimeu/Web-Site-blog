@@ -7,11 +7,12 @@
 </head>
 <body>
     <h2>Register</h2>
-    <form action="/register" method="POST">
+    <form id="register-form" action="/register" method="post">
         <div>
             <label for="nickname">Nickname:</label>
             <input type="text" id="nickname" name="nickname" required>
-        </div>
+            <span id="nickname-exists-error" class="text-red-500"></span>
+          </div>
         <div>
             <label for="password">Password:</label>
             <input type="password" id="password" name="password" required>
@@ -19,4 +20,30 @@
         <button type="submit">Register</button>
     </form>
 </body>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const form = document.getElementById('register-form');
+      form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        const formData = new FormData(form); // Use 'form' here instead of 'registerForm'
+        fetch('/register', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.userExists) {
+            document.getElementById('nickname-exists-error').textContent = 'Nickname already exists.';
+          } else {
+            window.location.href = '/login';
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+      });
+    });
+  </script>
 </html>
+

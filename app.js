@@ -29,15 +29,23 @@ db.once('open', function() {
 // User registration route
 app.post('/register', async (req, res) => {
   try {
+    const existingUser = await User.findOne({ nickname: req.body.nickname });
+    if (existingUser) {
+      return res.json({ userExists: true });
+    }
+    
+    // If user does not exist, proceed with hashing the password
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     const user = new User({
       nickname: req.body.nickname,
       password: hashedPassword
     });
+    
+    // Save the new user to the database
     await user.save();
-    res.redirect('/login'); // Redirect to login page after registration
+    res.redirect('/login'); // Redirect to login page after successful registration
   } catch {
-    res.redirect('/register'); // On failure, redirect back to registration form
+    res.status(500).json({ error: 'Error registering new user' });
   }
 });
 
@@ -45,6 +53,9 @@ app.get('/register', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'register.html'));
 });
 
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
 
 // User login route
 app.post('/login', async (req, res) => {
