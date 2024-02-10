@@ -8,6 +8,16 @@
     <style>
         body { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
         #news-container { margin-bottom: 20px; }
+        #user-info {
+        display: none;
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        font-family: 'Arial', sans-serif; /* Example font */
+        font-size: 20px; /* Example size */
+        color: #333; /* Example color */
+    }
         input, button { margin: 5px; }
     </style>
 </head>
@@ -27,17 +37,35 @@
             Authorize
         </a>
     </div>
-    
-
+    <div id="user-info">
+        Welcome, <span id="username"></span>!
+      </div>      
     <script>
-        document.getElementById('submit-news').addEventListener('click', function() {
-            var newsText = document.getElementById('news-input').value;
-            var newsContainer = document.createElement('div');
-            newsContainer.className = 'bg-gray-50 mt-4 p-4 rounded shadow';
-            var newsItem = document.createElement('p');
-            newsItem.textContent = newsText;
-            newsContainer.appendChild(newsItem);
-            document.body.appendChild(newsContainer);
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('/auth-status')
+                .then(response => response.json())
+                .then(data => {
+                    const submitButton = document.getElementById('submit-news');
+                    if (!data.isAuthenticated) {
+                        submitButton.addEventListener('click', function(event) {
+                            document.getElementById('user-info').style.display = 'none';
+                            event.preventDefault(); // Prevent the button's default behavior
+                            alert('You must be logged in to submit news.');
+                        });
+                    } else {
+                        submitButton.addEventListener('click', function() {
+                            var newsText = document.getElementById('news-input').value;
+                            var newsContainer = document.createElement('div');
+                            newsContainer.className = 'bg-gray-50 mt-4 p-4 rounded shadow';
+                            var newsItem = document.createElement('p');
+                            newsItem.textContent = newsText;
+                            document.getElementById('username').textContent = data.username;
+                            document.getElementById('user-info').style.display = 'block';
+                            newsContainer.appendChild(newsItem);
+                            document.body.appendChild(newsContainer);
+                        });
+                    }
+                });
         });
     </script>
 </body>

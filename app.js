@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const path = require('path');
 const bcrypt = require('bcrypt');
 const session = require('express-session');
-const User = require('./models/User'); // This should point to your User model file
+const User = require('./models/User'); 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -34,6 +34,29 @@ const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
   console.log("Connected successfully to the local MongoDB database.");
+});
+
+
+// Middleware to check if the user is authenticated
+function isAuthenticated(req, res, next) {
+  if (req.session && req.session.userId) {
+      return next();
+  } else {
+      return res.status(401).send('You are not authorized to perform this action.');
+  }
+}
+
+// Apply the middleware to the route that handles news submission
+app.post('/submit-news', isAuthenticated, (req, res) => {
+  // Handle news submission here
+});
+
+app.get('/auth-status', (req, res) => {
+  if (req.session && req.session.userId) {
+      res.json({ isAuthenticated: true });
+  } else {
+      res.json({ isAuthenticated: false });
+  }
 });
 
 
