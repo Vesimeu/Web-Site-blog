@@ -16,7 +16,6 @@
         transform: translateX(-50%);
         font-family: 'Arial', sans-serif; /* Example font */
         font-size: 20px; /* Example size */
-        color: #333; /* Example color */
     }
         input, button { margin: 5px; }
     </style>
@@ -37,9 +36,9 @@
             Authorize
         </a>
     </div>
-    <div id="user-info">
+    <div id="user-info" class="hidden absolute top-0 left-1/2 -translate-x-1/2 bg-blue-500 text-white text-lg font-bold p-2 rounded shadow-lg">
         Welcome, <span id="username"></span>!
-      </div>      
+    </div>     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             fetch('/auth-status')
@@ -53,14 +52,15 @@
                             alert('You must be logged in to submit news.');
                         });
                     } else {
+                        document.getElementById('username').textContent = data.username;
+                        document.getElementById('user-info').style.display = 'block';
+                        console.log(data.username);
                         submitButton.addEventListener('click', function() {
                             var newsText = document.getElementById('news-input').value;
                             var newsContainer = document.createElement('div');
                             newsContainer.className = 'bg-gray-50 mt-4 p-4 rounded shadow';
                             var newsItem = document.createElement('p');
                             newsItem.textContent = newsText;
-                            document.getElementById('username').textContent = data.username;
-                            document.getElementById('user-info').style.display = 'block';
                             newsContainer.appendChild(newsItem);
                             document.body.appendChild(newsContainer);
                         });

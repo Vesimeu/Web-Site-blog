@@ -51,9 +51,20 @@ app.post('/submit-news', isAuthenticated, (req, res) => {
   // Handle news submission here
 });
 
-app.get('/auth-status', (req, res) => {
+app.get('/auth-status', async (req, res) => {
   if (req.session && req.session.userId) {
-      res.json({ isAuthenticated: true });
+      try {
+          const user = await User.findById(req.session.userId);
+          if (user) {
+              res.json({ isAuthenticated: true, username: user.nickname });
+          } else {
+              // In case the user is not found in the database but the session exists
+              res.json({ isAuthenticated: false });
+          }
+      } catch (error) {
+          console.error("Error fetching user information:", error);
+          res.status(500).send('Server error');
+      }
   } else {
       res.json({ isAuthenticated: false });
   }
