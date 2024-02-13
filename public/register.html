@@ -7,50 +7,71 @@
 </head>
 <body>
     <h2>Register</h2>
-    <form id="register-form" action="/register" method="POST">
+    <form id="register-form">
       <div>
-          <label for="nickname">Nickname:</label>
-          <input type="text" id="nickname" name="nickname" autocomplete="username" required>
+          <label for="name">Name:</label>
+          <input type="text" id="name" name="name" required>
+      </div>
+      <div>
+          <label for="email">Email:</label>
+          <input type="email" id="email" name="email" required>
+      </div>
+      <div>
+          <label for="username">Username:</label>
+          <input type="text" id="username" name="username" required>
+      </div>
+      <div>
+          <label for="age">Age:</label>
+          <input type="number" id="age" name="age" required>
+      </div>
+      <div>
+          <label for="gender">Gender:</label>
+          <select id="gender" name="gender" required>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+          </select>
       </div>
       <div>
           <label for="password">Password:</label>
-          <input type="password" id="password" name="password" autocomplete="new-password" required>
+          <input type="password" id="password" name="password" required>
       </div>
       <button type="submit">Register</button>
   </form>
-  <span id="register-success" class="text-green-500"></span>
+  <span id="register-success" class="hidden absolute top-0 left-1/2 -translate-x-1/2 bg-blue-500 text-white text-lg font-bold p-2 rounded shadow-lg"></span>
   <span id="nickname-exists-error" class="text-green-500"></span>
 </body>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  const form = document.getElementById('register-form');
-  console.log(form);
-  form.addEventListener('submit', function(event) {
-    event.preventDefault();
-    const formData = new FormData(form);
-    console.log(formData);
-    fetch('/register', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify(Object.fromEntries(formData))
-})
-    .then(response => response.json())
-    .then(data => {
-      if (data.userExists) {
-        document.getElementById('nickname-exists-error').textContent = 'Nickname already exists.';
-      } else {
-        // Display success message instead of redirecting
-        document.getElementById('register-success').textContent = 'User successfully registered!';
-        console.log(data);
-        // Clear the form fields
-        form.reset();
-      }
-    })
+  document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('register-form');
+    form.addEventListener('submit', function(event) {
+      event.preventDefault();
+      const formData = new FormData(form);
+      console.log('Form data:', Object.fromEntries(formData)); // Debugging line
+
+      fetch('/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(Object.fromEntries(formData))
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Response data:', data); // Debugging line
+        if (data.userExists) {
+          document.getElementById('nickname-exists-error').textContent = 'Nickname already exists.';
+        } else {
+          document.getElementById('register-success').textContent = 'User successfully registered!';
+          form.reset();
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error); // Debugging line
+      });
+    });
   });
-});
-  </script>
+</script>
 </html>
 

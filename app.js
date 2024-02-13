@@ -7,6 +7,16 @@ const User = require('./models/User');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+//validotor 
+const { body, validationResult } = require('express-validator');
+const registrationValidationRules = [
+  body('name').not().isEmpty().withMessage('Name is required'),
+  body('email').isEmail().withMessage('Email is invalid'),
+  body('username').not().isEmpty().withMessage('Username is required'),
+  body('age').isInt({ min: 18 }).withMessage('Must be at least 18 years old'),
+  body('gender').isIn(['male', 'female']).withMessage('Gender must be male or female'),
+  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long')
+];
 
 const bodyparser = require("body-parser");
 app.use(bodyparser.urlencoded({ extended: false }));
@@ -72,32 +82,50 @@ app.get('/auth-status', async (req, res) => {
 
 
 // User registration route
-app.post('/register', async (req, res) => {
-  console.log("Received registration data:", req.body);
-  if (!req.body.password) {
-    return res.status(400).json({ error: 'Password is required' });
+app.post('/register', registrationValidationRules, async (req, res) => {
+  // Log received registration data for debugging
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
   }
+
+  const { name, email, username, age, gender, password } = req.body;
+  if (!name || !email || !username || !age || !gender || !password) {
+    return res.status(400).json({ error: 'All fields are required' });
+  }
+
   try {
-    const existingUser = await User.findOne({ nickname: req.body.nickname });
-    console.log("Existing user check result:", existingUser);
+    // Check for existing user by email or username
+    const existingUser = await User.findOne({ $or: [{ email }, { username }] });
     if (existingUser) {
-      return res.json({ userExists: true });
+      return res.status(400).json({ error: 'User already exists' });
     }
-    // If user does not exist, proceed with hashing the password
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
-    const user = new User({
-      nickname: req.body.nickname,
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create new user with all fields
+    const newUser = new User({
+      name,
+      email,
+      username,
+      age,
+      gender,
       password: hashedPassword
     });
+
     // Save the new user to the database
-    await user.save();
-    res.json({ registered: true });
-    // res.redirect('/login'); // Redirect to login page after successful registration
+    await newUser.save();
+
+    // Respond with a success message
+    res.json({ success: 'User registered successfully' });
+
   } catch (error) {
     console.error("Error during registration:", error);
     res.status(500).json({ error: 'Error registering new user' });
   }
 });
+
 
 app.get('/register', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'register.html'));
